@@ -1,0 +1,35 @@
+# OS
+._*
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Build and deployment
+.build/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Testing
+.pytest_cache/
+.coverage
+.ruff_cache
+
+# Environment
+.env
+.env.example
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation
+README.md
+
+# Runtime artifacts
+override.yaml
