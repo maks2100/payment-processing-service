@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.core.broker.manager import rabbit_router
+from src.core.broker.manager import declare_queues, rabbit_router
 from src.core.config import Settings, get_settings
 from src.core.db.manager import async_db_manager
 from src.core.logging import setup_logging
@@ -64,6 +64,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await startup_event()
 
     async with rabbit_router.lifespan_context(app):
+        await declare_queues(rabbit_router.broker)
         yield
 
     await shutdown_event()
