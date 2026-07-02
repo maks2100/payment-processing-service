@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import InternalServerError
 from src.payments.exceptions import PaymentCollisionError
 from src.payments.models import PaymentModel
-from src.payments.schemas import PaymentIncomingSchema
+from src.payments.schemas import PaymentRequestSchema
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class PaymentRepository:
     def __init__(self, db: AsyncSession):
         self._db = db
 
-    async def add_payment(self, payment: PaymentIncomingSchema) -> PaymentModel | None:
+    async def add_payment(self, payment: PaymentRequestSchema) -> PaymentModel | None:
         try:
             payment_model = PaymentModel(
                 **payment.model_dump(),
