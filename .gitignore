@@ -219,5 +219,5 @@ __marimo__/
 
 # own
 .python-version
-override.yaml
+compose.override.yaml
 *.pdf
