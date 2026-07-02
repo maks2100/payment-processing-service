@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, MetaData, func, text
+import sqlalchemy as sa 
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -9,7 +9,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 class Base(DeclarativeBase):
     __abstract__ = True
 
-    metadata = MetaData(
+    metadata = sa.MetaData(
         naming_convention={
             "ix": "ix_%(table_name)s_%(column_0_N_name)s",
             "uq": "uq_%(table_name)s_%(column_0_N_name)s",
@@ -25,27 +25,27 @@ class IdMixin:
         PG_UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default=text("gen_random_uuid()"),
+        server_default=sa.text("gen_random_uuid()"),
     )
 
 
 class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
+        onupdate=sa.func.now(),
         nullable=False,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
+        sa.DateTime(timezone=True),
+        server_default=sa.func.now(),
         nullable=False,
     )
 
 
 class IsDeletedMixin:
     is_deleted: Mapped[bool] = mapped_column(
-        Boolean,
+        sa.Boolean,
         default=False,
         server_default="false",
         nullable=False,

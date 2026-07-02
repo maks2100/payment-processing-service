@@ -25,6 +25,8 @@ class PaymentModel(Base, IdMixin, TimestampMixin, IsDeletedMixin):
     webhook_url: Mapped[str]
     handled_at: Mapped[dt.datetime | None] = mapped_column(
         sa.DateTime(timezone=True),
+        onupdate=sa.func.now(),
+
     )
     status: Mapped[PaymentStatusEnum] = mapped_column(
         sa.Enum(PaymentStatusEnum),

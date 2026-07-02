@@ -5,9 +5,10 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import InternalServerError
+from src.payments.enums import PaymentStatusEnum
 from src.payments.exceptions import PaymentCollisionError
 from src.payments.models import PaymentModel
-from src.payments.schemas import PaymentRequestSchema
+from src.payments.schemas import PaymentRequestSchema, PaymentStorageSchema
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +48,14 @@ class PaymentRepository:
         )
 
         return result.scalar_one_or_none()
+
+    async def update_payment_status_by_id(self, payment_id: UUID, status: PaymentStatusEnum) -> PaymentModel:
+        payment = await self._db.get(PaymentModel, payment_id)
+
+        if payment is None:
+            raise InternalServerError
+
+        payment.status = status
+        await self._db.commit()
+        await self._db.refresh(payment)
+        return payment

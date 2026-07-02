@@ -1,12 +1,13 @@
 import typing as t
 from uuid import UUID
 
-
 from fastapi import APIRouter, HTTPException, Header, status
 
-from src.payments.dependencies import PaymentServiceDI
+from src.payments.enums import RabbitQueuesEnum
+from src.core.dependencies import RabbitBrokerDI
 from src.core.exceptions import NotFoundError
 from src.core.responses import SuccessResponse
+from src.payments.dependencies import PaymentServiceDI
 from src.payments.schemas import PaymentPayloadSchema, PaymentRequestSchema
 
 api_router = APIRouter()
@@ -18,8 +19,9 @@ api_router = APIRouter()
 )
 async def create_payment(
     payment: PaymentPayloadSchema,
-    payment_service: PaymentServiceDI,
     idempotency_key: t.Annotated[str, Header()], 
+    payment_service: PaymentServiceDI,
+    rabbit_broker: RabbitBrokerDI,
 ) -> SuccessResponse:
     if not idempotency_key:
         raise HTTPException(
@@ -32,8 +34,12 @@ async def create_payment(
         **payment.model_dump()
     )
 
+    storaged_payment = await payment_service.create_payment(validated_request)
+
+    await rabbit_broker.publish(storaged_payment, RabbitQueuesEnum.PAYMENT_NEW)
+
     return SuccessResponse(
-        data=await payment_service.create_payment(validated_request),
+        data={},
         message="payments.created",
     )
 
@@ -44,7 +50,7 @@ async def create_payment(
 )
 async def get_payment(
     payment_id: UUID,
-    payment_service: PaymentServiceDI
+    payment_service: PaymentServiceDI,
 ) -> SuccessResponse:
     data = await payment_service.get_payment_by_id(payment_id)
     if not data:

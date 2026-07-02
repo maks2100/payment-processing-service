@@ -39,7 +39,7 @@ class PaymentRequestSchema(PaymentBaseSchema):
     idempotency_key: str
 
 
-class PaymentResponseSchema(PaymentBaseSchema):
+class PaymentStorageSchema(PaymentBaseSchema):
     id: UUID
     idempotency_key: str
     status: PaymentStatusEnum
