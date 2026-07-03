@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.core.broker.manager import rabbit_router
+from src.core.broker.rabbit import router as rabbit_router
 from src.core.config import get_settings
 from src.core.events import lifespan
 from src.core.exception_handlers import setup_exception_handlers

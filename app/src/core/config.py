@@ -63,6 +63,14 @@ class Settings(SettingsBase):
 
     db: DatabaseSettings
 
+    api_key: str
+
+    inc_consumer: str = Field(alias="INCLUDE_CONSUMER", default="false")
+
+    @property
+    def include_consumer(self) -> bool:
+        return self.inc_consumer == "true"
+
     @property
     def debug(self) -> bool:
         return self.environment == Environment.LOCAL

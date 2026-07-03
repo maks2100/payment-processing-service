@@ -1,14 +1,32 @@
 services:
-  app:
-    container_name: "${COMPOSE_PROJECT_NAME}-app"
+  api:
+    container_name: "${COMPOSE_PROJECT_NAME}-api"
     build:
       context: ../../
       dockerfile: .build/local/app/Dockerfile
     ports:
-      - target: 8000
-        published: "${APP_PORT_EXPOSE}"
-        protocol: tcp
-        mode: host
+      - 8000:8000
+    volumes:
+      - ../../app:/app
+    env_file: .env
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 500M
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+  consumer:
+    container_name: "${COMPOSE_PROJECT_NAME}-consumer"
+    build:
+      context: ../../
+      dockerfile: .build/local/app/Dockerfile
+    environment:
+      - INCLUDE_CONSUMER=true
     volumes:
       - ../../app:/app
     env_file: .env
@@ -36,16 +54,16 @@ services:
       - ./database/dump:/dump
     environment:
       PGDATA: /pg-data
+      POSTGRES_DB: ${DB__DATABASE}
       POSTGRES_USER: ${DB__USER}
       POSTGRES_PASSWORD: ${DB__PASSWORD}
-      POSTGRES_DB: ${DB__DATABASE}
     deploy:
       resources:
         limits:
           cpus: "1"
           memory: 500M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB__USER}"]
       interval: 10s
       timeout: 5s
       retries: 5

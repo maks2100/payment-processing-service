@@ -1,11 +1,14 @@
+import typing as t
 import logging
 from collections.abc import AsyncGenerator
-from typing import Annotated
 
-from fastapi import Depends, Response
+from fastapi import Depends, HTTPException, Header, Response
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.clients import HttpClient
+from src.core.config import get_settings
+from src.core.broker.rabbit import get_broker, RabbitBroker
 from src.core.db.manager import async_db_manager
 
 logger = logging.getLogger(__name__)
@@ -27,5 +30,19 @@ def add_no_cache_headers(response: Response) -> None:
     response.headers["Surrogate-Control"] = "no-store"
 
 
-AsyncDbSessionDI = Annotated[AsyncSession, Depends(get_async_db_session)]
-NoCacheHeadersDI = Annotated[None, Depends(add_no_cache_headers)]
+def get_http_client() -> HttpClient:
+    return HttpClient()
+
+
+def get_api_key(x_api_key: str = Header(alias="X-API-KEY")):
+    settings = get_settings()
+    if x_api_key != settings.api_key:
+        raise HTTPException(status_code=401, detail="Invalid API Key")
+    return x_api_key
+
+
+AsyncDbSessionDI = t.Annotated[AsyncSession, Depends(get_async_db_session)]
+NoCacheHeadersDI = t.Annotated[None, Depends(add_no_cache_headers)]
+RabbitBrokerDI = t.Annotated[RabbitBroker, Depends(get_broker)]
+HttpClientDI = t.Annotated[HttpClient, Depends(get_http_client)]
+ValidateApiKeyDI = t.Annotated[str, Depends(get_api_key)]
