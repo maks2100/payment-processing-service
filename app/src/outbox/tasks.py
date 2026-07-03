@@ -3,6 +3,7 @@ import logging
 
 import sqlalchemy as sa
 
+from src.core.config import get_settings
 from src.core.broker.rabbit import RABBIT_EXCHANGES, RABBIT_QUEUES, broker as rabbit_broker
 from src.core.db.manager import async_db_manager
 from src.outbox.enums import OutboxStatusEnum
@@ -12,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 async def relay_loop(poll_interval: float = 1.0, batch_size: int = 20):
+    settings = get_settings()
+    if settings.include_consumer:
+        return
+
     async with rabbit_broker:
         while True:
             await asyncio.sleep(poll_interval)

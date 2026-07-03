@@ -1,4 +1,3 @@
-from aio_pika import ExchangeType
 from faststream.rabbit import RabbitExchange, RabbitQueue
 from faststream.rabbit.fastapi import RabbitRouter, RabbitBroker
 
