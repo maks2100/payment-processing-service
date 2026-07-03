@@ -3,6 +3,7 @@ import logging
 import random
 from uuid import UUID
 
+from src.core.clients import ClientProtocol
 from src.payments.enums import PaymentStatusEnum
 from src.payments.repositories import PaymentRepository
 from src.payments.schemas import PaymentRequestSchema, PaymentStorageSchema
@@ -11,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class PaymentService:
-    def __init__(self, repository: PaymentRepository) -> None:
+    def __init__(self, repository: PaymentRepository, client: ClientProtocol) -> None:
         self._repository = repository
+        self._client = client
 
     async def create_payment(self, payment_: PaymentRequestSchema) -> PaymentStorageSchema | None:
         payment = await self._repository.add_payment(payment_)
@@ -41,5 +43,7 @@ class PaymentService:
             status = PaymentStatusEnum.FAILED
 
         updated_payment = await self._repository.update_payment_status_by_id(payment.id, status)
+
+        await self._client.send(str(payment.webhook_url), payment.model_dump(exclude={"webhook_url"}))
 
         logger.debug(f"Updated payment {updated_payment.id} with status {updated_payment.status}")

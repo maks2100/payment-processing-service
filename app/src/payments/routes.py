@@ -6,20 +6,21 @@ from fastapi import APIRouter, HTTPException, Header, status
 from src.core.exceptions import NotFoundError
 from src.core.responses import SuccessResponse
 from src.payments.dependencies import PaymentServiceDI
-from src.payments.schemas import PaymentPayloadSchema, PaymentRequestSchema, PaymentStorageSchema
+from src.payments.schemas import PaymentPayloadSchema, PaymentRequestSchema, PaymentResponseSchema
 
 api_router = APIRouter()
 
 
 @api_router.post(
     "/payments",
+    status_code=status.HTTP_202_ACCEPTED,
     summary="Creating payment data",
 )
 async def create_payment(
     payment: PaymentPayloadSchema,
-    idempotency_key: t.Annotated[str, Header()], 
+    idempotency_key: t.Annotated[str, Header()],
     payment_service: PaymentServiceDI,
-) -> SuccessResponse[PaymentStorageSchema]:
+) -> SuccessResponse[PaymentResponseSchema]:
     if not idempotency_key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -34,7 +35,7 @@ async def create_payment(
     storaged_payment = await payment_service.create_payment(validated_request)
 
     return SuccessResponse(
-        data=storaged_payment,
+        data=PaymentResponseSchema.model_validate(storaged_payment),
         message="payments.created",
     )
 

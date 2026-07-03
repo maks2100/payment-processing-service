@@ -3,7 +3,7 @@ import typing as t
 from fastapi import Depends as Depends
 
 
-from src.core.dependencies import AsyncDbSessionDI
+from src.core.dependencies import AsyncDbSessionDI, HttpClientDI
 from src.payments.repositories import PaymentRepository
 from src.payments.services import PaymentService
 
@@ -19,8 +19,9 @@ PaymentRepositoryDI = t.Annotated[PaymentRepository, Depends(get_payment_reposit
 
 async def get_payment_service(
     repository: PaymentRepositoryDI,
+    client: HttpClientDI,
 ) -> PaymentService:
-    return PaymentService(repository)
+    return PaymentService(repository, client)
 
 
 PaymentServiceDI = t.Annotated[PaymentService, Depends(get_payment_service)]

@@ -6,6 +6,7 @@ from fastapi import Depends, Response
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.clients import HttpClient
 from src.core.broker.rabbit import get_broker, RabbitBroker
 from src.core.db.manager import async_db_manager
 
@@ -27,6 +28,11 @@ def add_no_cache_headers(response: Response) -> None:
     response.headers["Expires"] = "0"
     response.headers["Surrogate-Control"] = "no-store"
 
+
+def get_http_client() -> HttpClient:
+    return HttpClient()
+
 AsyncDbSessionDI = t.Annotated[AsyncSession, Depends(get_async_db_session)]
 NoCacheHeadersDI = t.Annotated[None, Depends(add_no_cache_headers)]
 RabbitBrokerDI = t.Annotated[RabbitBroker, Depends(get_broker)]
+HttpClientDI = t.Annotated[HttpClient, Depends(get_http_client)]

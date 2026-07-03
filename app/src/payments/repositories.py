@@ -4,10 +4,11 @@ from uuid import UUID
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.enums import RabbitQueuesEnum
 from src.core.exceptions import InternalServerError
 from src.outbox.repositories import OutboxRepository
 
-from src.payments.enums import PaymentStatusEnum, RabbitQueuesEnum
+from src.payments.enums import PaymentStatusEnum
 from src.payments.exceptions import PaymentCollisionError
 from src.payments.models import PaymentModel
 from src.payments.schemas import PaymentRequestSchema, PaymentOutboxMessageSchema

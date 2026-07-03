@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.outbox.models import HandledEventModel, OutboxMessageModel
 from src.outbox.schemas import HandledEventSchema
-from src.payments.enums import RabbitQueuesEnum
+from src.core.enums import RabbitQueuesEnum
 
 logger = logging.getLogger(__name__)
 

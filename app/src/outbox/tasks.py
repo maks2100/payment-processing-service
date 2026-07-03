@@ -3,7 +3,7 @@ import logging
 
 import sqlalchemy as sa
 
-from src.core.broker.rabbit import broker as rabbit_broker
+from src.core.broker.rabbit import RABBIT_EXCHANGES, RABBIT_QUEUES, broker as rabbit_broker
 from src.core.db.manager import async_db_manager
 from src.outbox.enums import OutboxStatusEnum
 from src.outbox.models import OutboxMessageModel
@@ -31,12 +31,14 @@ async def process_batch(batch_size: int):
             .with_for_update(skip_locked=True)
         )
         messages = result.scalars().all()
-
+        rabbit_broker.publish
         for msg in messages:
             try:
                 await rabbit_broker.publish(
                     msg.payload,
-                    queue=msg.queue,                )
+                    queue=RABBIT_QUEUES[msg.queue],
+                    exchange=RABBIT_EXCHANGES[msg.queue],
+                )
                 msg.status = OutboxStatusEnum.SENT
             except Exception:
                 logger.exception("Send to queue failed")
