@@ -63,6 +63,8 @@ class Settings(SettingsBase):
 
     db: DatabaseSettings
 
+    api_key: str
+
     @property
     def debug(self) -> bool:
         return self.environment == Environment.LOCAL
