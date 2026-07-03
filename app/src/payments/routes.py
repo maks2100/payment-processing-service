@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Header, status
 
-from src.core.dependencies import AuthDI
+from src.core.dependencies import ValidateApiKeyDI
 from src.core.exceptions import NotFoundError
 from src.core.responses import SuccessResponse
 from src.payments.dependencies import PaymentServiceDI
@@ -21,7 +21,7 @@ async def create_payment(
     payment: PaymentPayloadSchema,
     idempotency_key: t.Annotated[str, Header()],
     payment_service: PaymentServiceDI,
-    _x_api_key: AuthDI,
+    _x_api_key: ValidateApiKeyDI,
 ) -> SuccessResponse[PaymentResponseSchema]:
     if not idempotency_key:
         raise HTTPException(
@@ -49,7 +49,7 @@ async def create_payment(
 async def get_payment(
     payment_id: UUID,
     payment_service: PaymentServiceDI,
-    _x_api_key: AuthDI,
+    _x_api_key: ValidateApiKeyDI,
 ) -> SuccessResponse:
     payment = await payment_service.get_payment_by_id(payment_id)
     if not payment:
