@@ -30,6 +30,10 @@ class PaymentBaseSchema(BaseModel):
     def _webhook_url_to_str(self, value: HttpUrl) -> str:  # noqa: PLR6301
         return str(value)
 
+    @field_serializer("amount")
+    def _amount_to_str(self, value: Decimal) -> str:  # noqa: PLR6301
+        return str(value)
+
 
 class PaymentPayloadSchema(PaymentBaseSchema):
     ...
@@ -47,3 +51,14 @@ class PaymentStorageSchema(PaymentBaseSchema):
         serialization_alias="metadata",
         default_factory=dict
     )
+
+class PaymentOutboxMessageSchema(PaymentStorageSchema):
+    idempotency_key: str
+    metadata_: dict | list | None = Field(
+        serialization_alias="metadata",
+        default_factory=dict
+    )
+
+    @field_serializer("id")
+    def _id_to_str(self, value: UUID) -> str:  # noqa: PLR6301
+        return str(value)

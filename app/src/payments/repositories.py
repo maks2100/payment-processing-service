@@ -5,10 +5,12 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import InternalServerError
-from src.payments.enums import PaymentStatusEnum
+from src.outbox.repositories import OutboxRepository
+
+from src.payments.enums import PaymentStatusEnum, RabbitQueuesEnum
 from src.payments.exceptions import PaymentCollisionError
 from src.payments.models import PaymentModel
-from src.payments.schemas import PaymentRequestSchema, PaymentStorageSchema
+from src.payments.schemas import PaymentRequestSchema, PaymentOutboxMessageSchema
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +24,23 @@ class PaymentRepository:
                 **payment.model_dump(),
             )
             self._db.add(payment_model)
+ 
+            await self._db.flush([payment_model])
+
+            outbox_repository = OutboxRepository(self._db)
+            await outbox_repository.add_outbox_message_to_session(
+                payment_model.idempotency_key,
+                PaymentOutboxMessageSchema.model_validate(payment_model).model_dump(),
+                RabbitQueuesEnum.PAYMENT_NEW,
+            )
+
             await self._db.commit()
-            await self._db.refresh(payment_model)
 
             logger.info(
                 "Successfully created payment",
                 extra={"payment_id": str(payment_model.id)},
             )
+
         except PaymentCollisionError as e:
             logger.exception("Failed to generate unique code for offer")
             raise InternalServerError from e
@@ -58,4 +70,6 @@ class PaymentRepository:
         payment.status = status
         await self._db.commit()
         await self._db.refresh(payment)
+
         return payment
+

@@ -3,12 +3,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Header, status
 
-from src.payments.enums import RabbitQueuesEnum
-from src.core.dependencies import RabbitBrokerDI
 from src.core.exceptions import NotFoundError
 from src.core.responses import SuccessResponse
 from src.payments.dependencies import PaymentServiceDI
-from src.payments.schemas import PaymentPayloadSchema, PaymentRequestSchema
+from src.payments.schemas import PaymentPayloadSchema, PaymentRequestSchema, PaymentStorageSchema
 
 api_router = APIRouter()
 
@@ -21,8 +19,7 @@ async def create_payment(
     payment: PaymentPayloadSchema,
     idempotency_key: t.Annotated[str, Header()], 
     payment_service: PaymentServiceDI,
-    rabbit_broker: RabbitBrokerDI,
-) -> SuccessResponse:
+) -> SuccessResponse[PaymentStorageSchema]:
     if not idempotency_key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -36,10 +33,8 @@ async def create_payment(
 
     storaged_payment = await payment_service.create_payment(validated_request)
 
-    await rabbit_broker.publish(storaged_payment, RabbitQueuesEnum.PAYMENT_NEW)
-
     return SuccessResponse(
-        data={},
+        data=storaged_payment,
         message="payments.created",
     )
 
