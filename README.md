@@ -1,6 +1,6 @@
 # payment-processing-service
 
-Сервис для обработки платежей. Построен на FastAPI с использованием асинхронной базы данных PostgreSQL и брокера сообщений RabbitMQ. Реализует [Outbox pattern](https://martinfowler.com/articles/201607-the-outbox-pattern.html) для гарантированной доставки сообщений.
+Сервис для обработки платежей. Построен на FastAPI с использованием асинхронной базы данных PostgreSQL и брокера сообщений RabbitMQ. Реализует Outbox pattern для гарантированной доставки сообщений.
 
 ## Архитектура
 
