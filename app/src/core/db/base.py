@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-import sqlalchemy as sa 
+import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

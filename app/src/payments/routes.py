@@ -1,7 +1,7 @@
 import typing as t
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Header, status
+from fastapi import APIRouter, Header, HTTPException, status
 
 from src.core.dependencies import ValidateApiKeyDI
 from src.core.exceptions import NotFoundError
@@ -26,12 +26,12 @@ async def create_payment(
     if not idempotency_key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Idempotency-Key header is missing."
+            detail="Idempotency-Key header is missing.",
         )
 
     validated_request = PaymentRequestSchema(
         idempotency_key=idempotency_key,
-        **payment.model_dump()
+        **payment.model_dump(),
     )
 
     storaged_payment = await payment_service.create_payment(validated_request)

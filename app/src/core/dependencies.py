@@ -1,14 +1,14 @@
-import typing as t
 import logging
+import typing as t
 from collections.abc import AsyncGenerator
 
-from fastapi import Depends, HTTPException, Header, Response
+from fastapi import Depends, Header, HTTPException, Response
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.broker.rabbit import RabbitBroker, get_broker
 from src.core.clients import HttpClient
 from src.core.config import get_settings
-from src.core.broker.rabbit import get_broker, RabbitBroker
 from src.core.db.manager import async_db_manager
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 async def get_async_db_session() -> AsyncGenerator[AsyncSession, None]:
     try:
         async with async_db_manager.session() as session:
-            yield session
+            yield session  # noqa: ASYNC119
     except SQLAlchemyError:
         logger.exception("Async DB operation failed")
         raise
@@ -34,7 +34,7 @@ def get_http_client() -> HttpClient:
     return HttpClient()
 
 
-def get_api_key(x_api_key: str = Header(alias="X-API-KEY")):
+def get_api_key(x_api_key: str = Header(alias="X-API-KEY")) -> str:
     settings = get_settings()
     if x_api_key != settings.api_key:
         raise HTTPException(status_code=401, detail="Invalid API Key")

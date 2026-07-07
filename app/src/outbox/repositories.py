@@ -3,15 +3,15 @@ import logging
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.enums import RabbitQueuesEnum
 from src.outbox.models import HandledEventModel, OutboxMessageModel
 from src.outbox.schemas import HandledEventSchema
-from src.core.enums import RabbitQueuesEnum
 
 logger = logging.getLogger(__name__)
 
 
 class OutboxRepository:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession) -> None:
         self._db = db
 
     async def add_outbox_message_to_session(
@@ -43,22 +43,22 @@ class OutboxRepository:
             )
         except Exception:
             logger.exception("Error with getting outbox message")
-            return
+            return None
 
         return result.scalar_one_or_none()
 
 
 class HandledEventRepository:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession) -> None:
         self._db = db
 
     async def add(
         self,
-        event: HandledEventSchema
+        event: HandledEventSchema,
     ) -> HandledEventModel | None:
         try:
             event_model = HandledEventModel(
-                **event.model_dump()
+                **event.model_dump(),
             )
 
             self._db.add(event_model)
@@ -69,7 +69,7 @@ class HandledEventRepository:
             logger.exception("Error with adding event")
             await self._db.rollback()
             raise
-        
+
         return event_model
 
     async def get_event_by_idempotency_key(self, idempotency_key: str) -> HandledEventModel | None:

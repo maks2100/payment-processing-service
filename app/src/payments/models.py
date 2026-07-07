@@ -4,8 +4,8 @@ from decimal import Decimal
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src.core.db.base import Base, IdMixin, IsDeletedMixin, TimestampMixin
 from src.payments.enums import CurrencyEnum, PaymentStatusEnum
-from src.core.db.base import Base, IdMixin, TimestampMixin, IsDeletedMixin
 
 
 class PaymentModel(Base, IdMixin, TimestampMixin, IsDeletedMixin):
@@ -20,7 +20,7 @@ class PaymentModel(Base, IdMixin, TimestampMixin, IsDeletedMixin):
     description: Mapped[str | None]
     metadata_: Mapped[dict | list | None] = mapped_column(
         sa.JSON,
-        default=lambda: {},
+        default=dict,
     )
     webhook_url: Mapped[str]
     handled_at: Mapped[dt.datetime | None] = mapped_column(

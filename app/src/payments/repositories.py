@@ -7,25 +7,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.enums import RabbitQueuesEnum
 from src.core.exceptions import InternalServerError
 from src.outbox.repositories import OutboxRepository
-
 from src.payments.enums import PaymentStatusEnum
 from src.payments.exceptions import PaymentCollisionError
 from src.payments.models import PaymentModel
-from src.payments.schemas import PaymentRequestSchema, PaymentOutboxMessageSchema
+from src.payments.schemas import PaymentOutboxMessageSchema, PaymentRequestSchema
 
 logger = logging.getLogger(__name__)
 
+
 class PaymentRepository:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession) -> None:
         self._db = db
 
     async def add_payment(self, payment: PaymentRequestSchema) -> PaymentModel | None:
-        try:
+        try:  # noqa: PLW0717
             payment_model = PaymentModel(
                 **payment.model_dump(),
             )
             self._db.add(payment_model)
- 
+
             await self._db.flush([payment_model])
 
             outbox_repository = OutboxRepository(self._db)
@@ -73,4 +73,3 @@ class PaymentRepository:
         await self._db.refresh(payment)
 
         return payment
-

@@ -3,8 +3,9 @@ import logging
 
 import sqlalchemy as sa
 
+from src.core.broker.rabbit import RABBIT_EXCHANGES, RABBIT_QUEUES
+from src.core.broker.rabbit import broker as rabbit_broker
 from src.core.config import get_settings
-from src.core.broker.rabbit import RABBIT_EXCHANGES, RABBIT_QUEUES, broker as rabbit_broker
 from src.core.db.manager import async_db_manager
 from src.outbox.enums import OutboxStatusEnum
 from src.outbox.models import OutboxMessageModel
@@ -12,7 +13,7 @@ from src.outbox.models import OutboxMessageModel
 logger = logging.getLogger(__name__)
 
 
-async def relay_loop(poll_interval: float = 1.0, batch_size: int = 20):
+async def relay_loop(poll_interval: float = 1.0, batch_size: int = 20) -> None:
     settings = get_settings()
     if settings.include_consumer:
         return
@@ -26,17 +27,17 @@ async def relay_loop(poll_interval: float = 1.0, batch_size: int = 20):
                 logger.exception("Relay task failed")
 
 
-async def process_batch(batch_size: int):
+async def process_batch(batch_size: int) -> None:
     async with async_db_manager.session() as session:
         result = await session.execute(
             sa.select(OutboxMessageModel)
             .where(OutboxMessageModel.status == OutboxStatusEnum.PENDING)
             .order_by(OutboxMessageModel.created_at)
             .limit(batch_size)
-            .with_for_update(skip_locked=True)
+            .with_for_update(skip_locked=True),
         )
         messages = result.scalars().all()
-        rabbit_broker.publish
+
         for msg in messages:
             try:
                 await rabbit_broker.publish(

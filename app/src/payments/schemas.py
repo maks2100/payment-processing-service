@@ -23,7 +23,7 @@ class PaymentBaseSchema(BaseModel):
     metadata_: dict | list | None = Field(
         serialization_alias="metadata",
         alias="metadata",
-        default_factory=dict
+        default_factory=dict,
     )
     webhook_url: HttpUrl
 
@@ -50,7 +50,7 @@ class PaymentStorageSchema(PaymentBaseSchema):
     status: PaymentStatusEnum
     metadata_: dict | list | None = Field(
         serialization_alias="metadata",
-        default_factory=dict
+        default_factory=dict,
     )
     created_at: dt.datetime
 
@@ -67,8 +67,9 @@ class PaymentOutboxMessageSchema(PaymentStorageSchema):
     idempotency_key: str
     metadata_: dict | list | None = Field(
         serialization_alias="metadata",
-        default_factory=dict
+        default_factory=dict,
     )
+
 
 class PaymentResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
