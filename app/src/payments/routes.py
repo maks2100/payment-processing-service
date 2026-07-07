@@ -50,7 +50,7 @@ async def get_payment(
     payment_id: UUID,
     payment_service: PaymentServiceDI,
     _x_api_key: ValidateApiKeyDI,
-) -> SuccessResponse:
+) -> SuccessResponse[PaymentResponseSchema]:
     payment = await payment_service.get_payment_by_id(payment_id)
     if not payment:
         raise NotFoundError
