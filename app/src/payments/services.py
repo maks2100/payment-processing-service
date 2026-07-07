@@ -19,21 +19,21 @@ class PaymentService:
     async def create_payment(self, payment_: PaymentRequestSchema) -> PaymentStorageSchema | None:
         payment = await self._repository.add_payment(payment_)
         if not payment:
-            return
+            return None
         return PaymentStorageSchema.model_validate(payment)
 
     async def get_payment_by_id(self, id_: UUID) -> PaymentStorageSchema | None:
         payment = await self._repository.get_payment_by_id(id_)
         if not payment:
-            return
+            return None
         return PaymentStorageSchema.model_validate(payment)
 
     async def handled_payment(self, payment: PaymentStorageSchema) -> None:
-        delay = random.randrange(2, 6)
+        delay = random.randrange(2, 6)  # noqa: S311
 
         await asyncio.sleep(delay)
 
-        is_error = random.choices([0, 1], weights=[10, 90])[0]
+        is_error = random.choices([0, 1], weights=[10, 90])[0]  # noqa: S311
 
         if not is_error:
             logger.debug("Success event")
@@ -46,4 +46,4 @@ class PaymentService:
 
         await self._client.send(str(payment.webhook_url), payment.model_dump(exclude={"webhook_url"}))
 
-        logger.debug(f"Updated payment {updated_payment.id} with status {updated_payment.status}")
+        logger.debug("Updated payment %s with status %s", updated_payment.id, updated_payment.status)

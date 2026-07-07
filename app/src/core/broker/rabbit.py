@@ -1,5 +1,5 @@
 from faststream.rabbit import RabbitExchange, RabbitQueue
-from faststream.rabbit.fastapi import RabbitRouter, RabbitBroker
+from faststream.rabbit.fastapi import RabbitBroker, RabbitRouter
 
 from src.core.enums import RabbitQueuesEnum
 
@@ -9,6 +9,7 @@ broker = router.broker
 
 def get_broker() -> RabbitBroker:
     return broker
+
 
 PAYMENT_EXCHANGE = RabbitExchange("payments")
 

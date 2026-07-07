@@ -12,7 +12,7 @@ api_router.include_router(payments_router)
     "/healthz",
     summary="Health check endpoint.",
 )
-async def healthz():
+async def healthz() -> JSONResponse:
     return JSONResponse(
         status_code=200,
         content={"status": "ok", "message": "Service is healthy"},

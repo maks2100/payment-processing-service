@@ -1,7 +1,7 @@
 import logging
 
-from src.outbox.schemas import HandledEventSchema
 from src.outbox.repositories import HandledEventRepository
+from src.outbox.schemas import HandledEventSchema
 
 logger = logging.getLogger(__name__)
 
@@ -17,5 +17,5 @@ class HandledEventService:
     async def get_event_by_idempotency_id(self, idempotency_id: str) -> HandledEventSchema | None:
         event = await self._repository.get_event_by_idempotency_key(idempotency_id)
         if not event:
-            return
+            return None
         return HandledEventSchema.model_validate(event)

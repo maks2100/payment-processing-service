@@ -1,4 +1,4 @@
-from typing import Protocol, Any
+from typing import Any, Protocol, Self
 
 import httpx
 from tenacity import (
@@ -7,6 +7,8 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
+
+ERRORS_5XX = 500
 
 
 class ClientProtocol(Protocol):
@@ -40,7 +42,7 @@ class HttpClient:
                 httpx.WriteTimeout,
                 httpx.RemoteProtocolError,
                 httpx.HTTPStatusError,
-            )
+            ),
         ),
         reraise=True,
     )
@@ -54,14 +56,14 @@ class HttpClient:
             json=payload,
         )
 
-        if response.status_code >= 500:
+        if response.status_code >= ERRORS_5XX:
             response.raise_for_status()
 
         response.raise_for_status()
 
         return response.json()
 
-    async def __aenter__(self) -> "HttpClient":
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *_: object) -> None:
