@@ -71,7 +71,9 @@
 
 | Переменная | Описание | По умолчанию |
 |---|---|---|
-| `INCLUDE_CONSUMER` | Включить consumer service | `false` |
+| `INCLUDE_CONSUMER` | Включить consumer-роль | `false` |
+
+> **Примечание:** при `INCLUDE_CONSUMER=true` инстанс переходит в роль consumer — регистрирует RabbitMQ-подписчиков и **отключает** HTTP API платежей (`/payments`) и Swagger/ReDoc-документацию. Доступным остаётся только `/healthz`. При `INCLUDE_CONSUMER=false` (по умолчанию) инстанс работает в роли API: принимает платежи по HTTP и выполняет outbox-relay в RabbitMQ, но не подписан на очередь `payment.new`.
 
 ## Локальный запуск
 
