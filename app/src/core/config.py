@@ -65,11 +65,7 @@ class Settings(SettingsBase):
 
     api_key: str
 
-    inc_consumer: str = Field(alias="INCLUDE_CONSUMER", default="false")
-
-    @property
-    def include_consumer(self) -> bool:
-        return self.inc_consumer == "true"
+    include_consumer: bool = Field(alias="INCLUDE_CONSUMER", default=False)
 
     @property
     def debug(self) -> bool:

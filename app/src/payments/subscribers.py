@@ -19,10 +19,6 @@ if settings.include_consumer:
         payment_service: PaymentServiceDI,
         handled_event_service: HandledEventServiceDI,
         ) -> None:
-        settings = get_settings()
-        if not settings.include_consumer:
-            return
-
         logger.info("Received message: %s", payment)
 
         handled_event = await handled_event_service.get_event_by_idempotency_id(payment.idempotency_key)
